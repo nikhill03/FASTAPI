@@ -1,7 +1,19 @@
 from fastapi import FastAPI, HTTPException, Path, Query
 import json
+from pydantic import BaseModel, Field
+from typing import Annotated, Literal
 
 app = FastAPI()
+
+class Patient(BaseModel):
+
+    id: Annotated[str, Field(..., description="ID of the patient", examples=['P001'])]
+    name: Annotated[str, Field(..., description="Name of the patient")]
+    city: Annotated[str, Field(..., description="City of the patient")]
+    age: Annotated[int, Field(..., gt=0,  lt=120)]
+    gender: Annotated[Literal['male', 'female','others'], Field(..., description="Gender of the patient")]
+    height: Annotated[float, Field(..., gt=0,  description="Height of the patient in mtrs")]
+    weight: Annotated[float, Field(..., gt=0,  description="City of the patient in kgs")]
 
 #helper function
 def load_data():
@@ -55,6 +67,8 @@ def sort_patient(sort_by: str = Query(..., description="Sort on the basis of par
 
     sorted_data = sorted(data.values(), key=lambda x:x.get(sort_by, 0), reverse=sort_order)
     return sorted_data
+
+@app.get("")
 
 @app.get("/routes")
 def routes():
