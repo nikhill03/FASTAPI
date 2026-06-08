@@ -122,6 +122,32 @@ def create_patient(patient: Patient):
 
     return JSONResponse(status_code=201, content={'message':'Patient created successsfully'})
 
+#Update operation with put
+@app.put("/edit/{patient_id}")
+def update_patient(patient_id : str, patientupdate:PatientUpdate):
+
+    data = load_data()
+
+    if patient_id not in data:
+        raise HTTPException(status_code=400, detail="Patient not found")
+    
+    existing_info = data[patient_id]
+
+    updated_info = patientupdate.model_dump(exclude_unset=True)    # only updated fields will be present 
+
+    for key, value in updated_info.items():
+        existing_info[key] = value
+
+    # existing_info (dict) -> pydantic object (Patient) -> updated bmi & verdict -> pydantic object -> dict -> save_data
+
+    existing_info[id] = patient_id                      # id added for Patient pydantic object
+    patient_pydantic_obj = Patient(**existing_info)     # Pydantic object
+    existing_info = patient_pydantic_obj.model_dump(exclude=['id'])     # object to dict
+
+    data[patient_id] = existing_info                    # adding to main db
+    # save data
+    save_data(data)
+
 @app.get("/routes")
 def routes():
     return [route.path for route in app.routes]
