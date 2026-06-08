@@ -148,6 +148,8 @@ def update_patient(patient_id : str, patientupdate:PatientUpdate):
     # save data
     save_data(data)
 
+    return JSONResponse(status_code=200, content={'message' : 'Patient Updated'})
+
 @app.get("/routes")
 def routes():
     return [route.path for route in app.routes]
